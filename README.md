@@ -1,2 +1,2 @@
 # flxMenu
-flxMenu jquery plugin
+flxMenu is a jquery plugin 
