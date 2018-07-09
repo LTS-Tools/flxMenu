@@ -1,0 +1,2 @@
+# flxMenu
+flxMenu jquery plugin
