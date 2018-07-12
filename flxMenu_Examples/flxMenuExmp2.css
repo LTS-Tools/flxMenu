@@ -51,15 +51,16 @@
 #Content{
 	min-height: 300px;
 	padding: 20px;
-	font-family: "Arial";
-	font-size: 14pt;
-	background-color: whitesmoke;
 }
 #spacerTop{
 	min-height: 200px;
-	background-color: #96a6c8;
 	padding: 20px;
+}
+#Content, #spacerTop{
+	background-color: #96a6c8;
 	color: white;
+	font-family: "Arial";
+	font-size: 14pt;	
 }
 #Footer{
 	background-color: #a3c9ae;
