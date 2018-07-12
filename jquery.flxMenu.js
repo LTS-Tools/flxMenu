@@ -1,6 +1,6 @@
 /*!
  * flxMenu v1.0
- * https://github.com/LoFred59/flxMenu
+ * https://github.com/LTS-Tools/flxMenu
  *
  * Copyright (c) 2018 Alfred Lorenz.  All rights reserved.
  * Released under the MIT license.
@@ -44,7 +44,7 @@
 			if (options.debug)
 				console.log('flxMenu: !!! load "debug.js" for logging outputs !!!');	
 
-				$.fn.flxLog= function(){};
+			$.fn.flxLog= function(){};
 		}
 
 
@@ -807,8 +807,71 @@
 					break;
 				
 				case 37:
+					// left
+					evt.preventDefault();
+					$Li= $(this).closest("li");
+					if ($Li.hasClass("displaySubmenu")){
+						__flxCloseSubmenu2($Li);						
 					break;
 				}
+					var $jumpLi= [];
+					var cssFloat= $Li.css("float");
+					if (cssFloat == "left")
+						$jumpLi= $Li.prev();
+					else if (cssFloat == "right")
+						$jumpLi= $Li.next();
+					else{
+						
+						var $liParent= $Li.parent();
+						$jumpLi= __flxFindTargetInFrame($liParent, $Li.offset(), opts);
+						if ($jumpLi.length == 0)
+							$jumpLi= $liParent.closest("li");
+						
+					}
+							
+					if ($jumpLi.length > 0)
+						$jumpLi.find("a:first").focus();
+					
+					break;
+					
+				case 39:
+					// right
+					evt.preventDefault();
+					$Li= $(this).closest("li");
+					
+					// check horizontal
+					var $jumpLi= [];
+					var cssFloat= $Li.css("float");
+					if (cssFloat == "left"){
+						if (!opts.popup)
+							__flxCloseSubmenu2($Li);
+						$jumpLi= $Li.next();
+					}
+					else if (cssFloat == "right"){
+						if (!opts.popup)
+							__flxCloseSubmenu2($Li);
+						
+						$jumpLi= $Li.prev();
+					}
+					else{
+						// vertical nav-bar
+						if ($Li.hasClass("hasSubmenu")){
+							__flxOpenSubmenu2($Li, true);
+							$jumpLi= $Li.find("li:first");						
+						}
+						else{
+							// in case we have a 2 column panel
+							$jumpLi= __flxFindTargetInFrame($Li.parent(), $Li.offset(), opts, true);
+							
+						}
+					}
+							
+					if ($jumpLi.length > 0)
+						$jumpLi.find("a:first").focus();
+					
+					break;
+				}
+				
 			});
 			
 			// special handling for framework
