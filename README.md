@@ -1,5 +1,14 @@
 # flxMenu
-flxMenu is a jquery plugin 
+The flxMenu plugin is a responsive, cross-browser jQuery plugin that helps you create dropdown navigation for both desktop and mobile devices.
+
+## Features 
+- automatically switches to a mobile-friendly toggle menu when the window width reaches a specified breakpoint.
+- supports infinite levels of sub menus.
+- supports multi-column dropdown navigation.
+- popup menu slides in from top, left or right hand side.
+- accordion-style menu where all the menu items will be collapsed into a dropdown toggle menu on small screens.
+- supports keyboard navigation in desktop mode.
+ 
 ## Usage 
 Include the JS and CSS 
 ```HTML
