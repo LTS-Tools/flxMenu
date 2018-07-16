@@ -8,6 +8,6 @@ Include the JS and CSS
 ```
 ``` javascript
 $(function(){
-$('#MenuToMove').flxMenu($('#navTrigger'), options);
+  $('#MenuToMove').flxMenu($('#navTrigger'), options);
 });
 ```
