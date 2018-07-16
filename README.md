@@ -15,8 +15,11 @@ Include the JS and CSS
 <script src="jquery.flxMenu.min.js"></script>
 <link href="flxMenu.css" rel="stylesheet" type="text/css">	
 ```
+Initialize
 ``` javascript
 $(function(){
   $('#MenuToMove').flxMenu($('#navTrigger'), options);
 });
 ```
+#Examples
+[flxMenu info page](http://jquery.LTS-Tools.com "LTS-Tools jQuery Page")
