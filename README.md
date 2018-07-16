@@ -21,5 +21,5 @@ $(function(){
   $('#MenuToMove').flxMenu($('#navTrigger'), options);
 });
 ```
-#Examples
+## Examples
 [flxMenu info page](http://jquery.LTS-Tools.com "LTS-Tools jQuery Page")
