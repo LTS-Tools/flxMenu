@@ -22,4 +22,4 @@ $(function(){
 });
 ```
 ## Examples
-[flxMenu info page](http://jquery.LTS-Tools.com "LTS-Tools jQuery Page")
+[flxMenu info page](http://jquery.LTS-Tools.com/flxMenu.php "LTS-Tools jQuery Page")
