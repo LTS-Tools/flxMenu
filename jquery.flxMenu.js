@@ -44,7 +44,7 @@
 			if (options.debug)
 				console.log('flxMenu: !!! load "debug.js" for logging outputs !!!');	
 
-			$.fn.flxLog= function(){};
+				$.fn.flxLog= function(){};
 		}
 
 
@@ -53,7 +53,10 @@
 			
 		}
 		function DoItemClick(evt, $item){
-			__flxOpenSubmenu2($item, true);
+			$li= $(evt.target).closest("li");
+			if ($li.is($item))
+				__flxOpenSubmenu2($item, 1);
+			evt.stopPropagation();
 //				evt.preventDefault();	
 				
 		}
@@ -143,14 +146,21 @@
    	   				ResetSubmenu($(this))
    				});   					
    			}
+   			$(document).off("click.flxMenu");    		
 		}
 
 		function __flxOpenSubmenu2($li, clicked){
 			if ( !$li.hasClass('hasSubmenu') )
 				return false;
 			
-			if ( $li.hasClass('displaySubmenu') || $li.hasClass('inProgrOpen') )
+			if ($li.hasClass('displaySubmenu') && (clicked == 1)){
+				__flxCloseSubmenu2($li, true);
+				return false;	
+			}
+
+			if (  $li.hasClass('inProgrOpen') || $li.hasClass('displaySubmenu'))
 				return true;
+			
 			
 			var opts= __flxOptions($li);
 			
@@ -158,6 +168,18 @@
         	$li.siblings('li.displaySubmenu').each(function(){
        			__flxCloseSubmenu2($(this), clicked);
         	});
+
+        	if (opts.smShowByClick && !opts.popup){
+        		// close submenu if user click anywhere on the document
+				$(document).on("click.flxMenu", function(evt){
+					var clickOnMenu= $(evt.target).closest('.flxInitFrame');
+					if (clickOnMenu.length)
+							console.log('clicked on item of mainMenu');	
+					else
+						__flxCloseSubmenu2($li, true);
+					});
+        		
+        	}
 
 			// show the submenu
         	var subFrame= $li.children("ul, div");
@@ -195,6 +217,7 @@
         	$subFrame.animate({height: subH+"px"}, opts.duration, function(){
         		$li.removeClass("inProgrOpen");
         	});
+            
         	$li.addClass('displaySubmenu');
 
         	return $subFrame;
@@ -243,7 +266,7 @@
 						if (window.editPermissions){
 							$trigger.find(".ltxContainer").addClass("ltx-locked");
 							if (!initializing)
-							ltxCancelForm();
+								ltxCancelForm();
 						}
 					}
 					opts.fnChanged(true, $trigger, $srcFrame);
@@ -812,8 +835,8 @@
 					$Li= $(this).closest("li");
 					if ($Li.hasClass("displaySubmenu")){
 						__flxCloseSubmenu2($Li);						
-					break;
-				}
+						break;
+					}
 					var $jumpLi= [];
 					var cssFloat= $Li.css("float");
 					if (cssFloat == "left")
@@ -856,7 +879,8 @@
 					else{
 						// vertical nav-bar
 						if ($Li.hasClass("hasSubmenu")){
-							__flxOpenSubmenu2($Li, true);
+							__flxOpenSubmenu2($Li, 39);
+//							__flxOpenSubmenu2($Li);
 							$jumpLi= $Li.find("li:first");						
 						}
 						else{
