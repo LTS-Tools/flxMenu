@@ -1,0 +1,131 @@
+
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=2.0">
+		<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+		<title>flxMenu - jQuery Plugin by LTS</title>
+		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.0/css/all.css" integrity="sha384-lKuwvrZot6UHsBSfcMvOkWwlCMgc0TaWr+30HWe3a4ltaBwTZhyTEggF5tJv8tbt" crossorigin="anonymous">
+		
+		<script type="text/javascript" src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+		<script type="text/javascript" src="jquery.flxMenu.min.js"></script>
+				<script type="text/javascript" src="flxDebug.js"></script>
+		
+		<link href="flxMenu.css" rel="stylesheet" type="text/css">
+		<link href="flxMenuTest3.css" rel="stylesheet" type="text/css">	
+		
+		<link href="flxMenu_ThemeDark.css" rel="stylesheet" type="text/css">	
+		<script type="text/javascript">
+			$(document).ready(function()
+			{		
+				$("#menuExmp1").flxMenu( $("#exmp1Trigger"), 
+					{
+						puAutoWidth: 12,	// this will add a margin of 12px to the minimum width
+						debug: true
+					},
+				);
+				
+			});
+			
+			function AddNewItem(domSender){
+				$.fn.flxLog("AddNewItem");
+				var $mainMenu= $(domSender).closest(".flxMenu");
+				$newItem= $('<li class="flxTempItem"><a href="javascript:"><i class="fab fa-algolia"></i>Temp</a></li>');
+				$mainMenu.append($newItem);
+				$mainMenu.triggerHandler('flxMenuRegisterItem', $newItem[0]);
+			}
+			function AddSubItem(domSender){
+				$.fn.flxLog("AddSubItem");
+				var $mainMenu= $(domSender).closest(".flxMenu");
+				var $mainItem= $mainMenu.children(".flxTempItem").last();
+				var $subMenu= $mainItem.children("ul");
+				if ($subMenu.length == 0){
+					$subMenu= $('<ul></ul>');
+					$mainItem.append($subMenu);
+				}
+					
+				$newItem= $('<li class="flxTempSub"><a href="javascript:"><i class="fas fa-air-freshener"></i></i>Temp Sub</a></li>');
+				$subMenu.append($newItem);
+				$mainMenu.triggerHandler('flxMenuRegisterItem', $newItem[0]);
+			}
+
+			function RemoveLastItem(domSender){
+				$.fn.flxLog("RemoveLastItem");
+				var $mainMenu= $(domSender).closest(".flxMenu");
+				$itemToRemove= $mainMenu.children(".flxTempItem").last();
+				if ($itemToRemove[0])
+					$mainMenu.triggerHandler('flxMenuRegisterItem', [$itemToRemove[0], true]);	
+			}
+			function RemoveLastSubItem(domSender){
+				$.fn.flxLog("RemoveLastSubItem");
+				var $mainMenu= $(domSender).closest(".flxMenu");
+				var $mainItem= $mainMenu.children(".flxTempItem").last();
+
+				$itemToRemove= $mainItem.find(".flxTempSub").last();
+				if ($itemToRemove[0])
+					$mainMenu.triggerHandler('flxMenuRegisterItem', [$itemToRemove[0], true]);	
+			}
+		</script>
+	</head>
+
+	<body>
+
+		<div id="exmp1NavBar">
+			<div id="exmp1Trigger">
+				<a href="javascript:" title="open" class="flxMenuToggle">MENU</a>
+			</div>
+			<ul id="menuExmp1">
+				<li><a href="javascript:"><i class="fa fa-home" arai-hidden="true"></i>Home</a></li>
+				<li><a href="javascript:"><i class="fas fa-archway"></i>Items</a>
+					<ul>
+						<li><a href="javascript:" onclick="AddNewItem(this)" >Add New</a></li>
+						<li><a href="javascript:" onclick="AddSubItem(this)">Add New Subitem</a></li>
+						<li><a href="javascript:" onclick="RemoveLastItem(this)">Remove Last</a></li>
+						<li><a href="javascript:" onclick="RemoveLastSubItem(this)">Remove Last Subitem</a></li>
+					</ul>
+				</li>
+				<li><a href="javascript:"><i class="fas fa-paper-plane"></i>Item 2</a>
+					<ul>
+						<li><a href="javascript:">I2 Sub1</a>
+						<ul>
+							<li><a href="javascript:">I2 S1 Sub1</a></li>
+							<li><a href="javascript:">I2 S1 Sub2</a></li>
+						</ul>
+						</li>
+						<li><a href="javascript:">I2 Sub2</a>
+						<ul>
+							<li><a href="javascript:">I2 S2 Sub1</a></li>
+							<li><a href="javascript:">I2 S2 Sub2</a></li>
+						</ul>
+						</li>
+					
+					</ul>
+				</li>
+				<li><a href="javascript:"><i class="fas fa-thumbtack"></i>Item 3</a>
+					<ul>
+						<li><a href="javascript:">I3 Sub1</a></li>
+						<li><a href="javascript:">I3 Sub2</a>
+							<ul>
+								<li><a href="javascript:">I2 S1 Sub1 very long please try to wrap</a></li>
+								<li><a href="javascript:">I2 S1 Sub2</a></li>
+							</ul>
+						
+						</li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+		<div id="Content">
+			Example of a responsive navigation bar.<br>
+			Click on "<i>Items| Add New</i>" to dynamically increase the number of main items.<br>
+			Click on "<i>Items| Remove Last</i>"  to remove the last added item.<br> 
+			Since the option "<b>puAutoWidth</b>" is set to '12', the threshold for switching to popup mode will be adjusted
+			according to the menu bar's new width plus 12px. 
+		</div>
+		<div id="Footer">
+			<a href="http://jquery.LTS-Tools.com/flxMenu.php">flxMenu info page</a>
+		</div>
+	</body>
+
+</html>
