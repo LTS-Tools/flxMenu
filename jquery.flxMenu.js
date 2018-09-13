@@ -1,11 +1,12 @@
 /*!
- * flxMenu v1.0
+ * flxMenu v1.1
+ * 
+ * Date: Thu Sept 13 2018
  * https://github.com/LTS-Tools/flxMenu
  *
  * Copyright (c) 2018 Alfred Lorenz.  All rights reserved.
  * Released under the MIT license.
  *
- * Date: Thu Jul 12 2018
  */
 (function ( $ ) {
 	if ( $.fn.flxMenu )
@@ -35,6 +36,7 @@
 			puShowActiveItem: false,	// when popup menu opens, any submenu which contains the active item will be opened. 
 			puAligned: false,			// popup menu aligned to trigger DIV
 			puFullRange: true,
+			puAutoWidth: false,			// automatically switch to popup mode when items of main menu do not fit in one row
 			smFilterClass: false,		// class which identifies submenu tags (UL or DIV)
 			framework: false,			// special handling for different frameworks
 			debug: false
@@ -44,7 +46,7 @@
 			if (options.debug)
 				console.log('flxMenu: !!! load "debug.js" for logging outputs !!!');	
 
-				$.fn.flxLog= function(){};
+			$.fn.flxLog= function(){};
 		}
 
 
@@ -185,21 +187,32 @@
         	var subFrame= $li.children("ul, div");
         	var $subFrame= $(subFrame[0]);
 
+        	$subFrame.removeClass("leftAligned");
+        	var framePos= $subFrame.offset();
+        	
+        		
         	var currW= $subFrame.width();
+        	var minW= $subFrame.css("min-width");
 			// calculate height off screen
 			$subFrame.css("position", "fixed");
+			$subFrame.css("min-width", 0);
         	$subFrame.css("left", -9999);
+        	//$subFrame.css("left", 0);		//only for testing!!!
        		$subFrame.css("width", currW);
         	
        		$subFrame.css("height", "auto");
        		subH= $subFrame.outerHeight() + 3;
    			___flxMenuDebug(opts.debug, '__flxOpenSubmenu - sub frame calculated h: {0}', subH);
     			
+   			if ($(window).scrollLeft() + $(window).width() < (framePos.left + currW))
+   				$subFrame.addClass("leftAligned");
+   			
    			// prepare animation of height
         	$subFrame.css("position", "");
         	$subFrame.css("left", "");
         	$subFrame.css("height", 0);
        		$subFrame.css("width", "");
+			$subFrame.css("min-width", minW);
         	     	
         	// adjust height of parent submenu
         	var pSubFrame= $li.parent().closest(".displaySubmenu").children("ul, div");
@@ -240,6 +253,13 @@
 			}
 			else 
 			****************/
+			if (opts.thW){
+				___flxMenuDebug(opts.debug, '- flxOptions.thW: {0}', opts.thW);	
+				if ($srcFrame.innerWidth() < opts.thW)
+					$trigger.show();
+				else
+					$trigger.css('display', 'none');
+			}
 
 			if ($trigger.css('display') != 'none'){
 				insideDest= true;
@@ -266,7 +286,7 @@
 						if (window.editPermissions){
 							$trigger.find(".ltxContainer").addClass("ltx-locked");
 							if (!initializing)
-								ltxCancelForm();
+							ltxCancelForm();
 						}
 					}
 					opts.fnChanged(true, $trigger, $srcFrame);
@@ -684,6 +704,74 @@
 		function flxPopupSlideOutTop(evt){
 			flxPopupSlideOut($(this));	
 		}
+		/**
+		 * Calculates the width of
+		 */
+		function flxCalcTHW(elemToMove){
+
+			if (elemToMove.flxOptions.popup){
+				___flxMenuDebug(elemToMove.flxOptions.debug, 'flxCalcTHW: temporarily changing to desktop mode');
+				
+				$(elemToMove.initialFrame).prepend(elemToMove);
+			}
+			
+			var thW= 0;
+			$(elemToMove).children("li").each(function(){
+				thW+= $(this).outerWidth(true);
+			});
+			elemToMove.flxOptions.thW= thW + elemToMove.flxOptions.puAutoWidth;
+			___flxMenuDebug(elemToMove.flxOptions.debug, 'set thw to "{0}px"', elemToMove.flxOptions.thW);
+			
+		}
+		function flxRegisterItem(mainMenu, domNewItem){
+			___flxMenuDebug(mainMenu.flxOptions.debug, 'flxRegisterItem');
+			
+			// add submenu skills
+			$(domNewItem).parentsUntil(mainMenu).filter("li").each(function(){
+				var $li= $(this);
+				$li.addClass("hasSubmenu");
+				$li.on('click', function(evt){
+					mainMenu.onItemClick(evt, $li);
+				});
+				$li.on('mouseenter', function(evt){
+					mainMenu.onItemEnter(evt, $li);
+				});
+				$li.on('mouseleave',  function(evt){
+					mainMenu.onItemLeave(evt, $li);
+				});
+
+			});
+			
+			// adjust puAutoWidth threshold for main item
+			if (mainMenu.flxOptions.puAutoWidth && (domNewItem.parentNode == mainMenu)){
+				flxCalcTHW(mainMenu);
+				$(mainMenu).triggerHandler("flxMenuCheck");
+			}			
+		}
+
+		function flxUnregisterItem(mainMenu, domItemToRemove){
+			___flxMenuDebug(mainMenu.flxOptions.debug, 'flxUnregisterItem');
+			
+			if (domItemToRemove.parentNode == mainMenu){
+				
+				// remove a main item
+				mainMenu.removeChild(domItemToRemove);
+				if (mainMenu.flxOptions.puAutoWidth){
+					
+					// adjust puAutoWidth threshold for main item
+					flxCalcTHW(mainMenu);
+					$(mainMenu).triggerHandler("flxMenuCheck");	
+				}
+			}
+			else{
+				// we remove a submenu item
+				var subMenu= domItemToRemove.parentNode;
+				subMenu.removeChild(domItemToRemove);
+				if (!subMenu.hasChildNodes())
+					$(subMenu).closest("li").removeClass("hasSubmenu");
+			}
+			
+		}
 
 		
 		function flxMenuInit(elemToMove, $destFrame){
@@ -835,8 +923,8 @@
 					$Li= $(this).closest("li");
 					if ($Li.hasClass("displaySubmenu")){
 						__flxCloseSubmenu2($Li);						
-						break;
-					}
+					break;
+				}
 					var $jumpLi= [];
 					var cssFloat= $Li.css("float");
 					if (cssFloat == "left")
@@ -972,8 +1060,11 @@
 			$elemToMove.on('flxMenuCheck', function(){
 				var $target= $(this.target);
 				flxMenuCheckPosition($elemToMove, $(this.initialFrame), $target.children(".menuFrame").children(".menuSlider"), $target);				
-			}).on('flxMenuNewItem', function(evt, domNewItem){
-				$(domNewItem).parentsUtil(".flxMenu").filter("li").addClass("hasSubmenu");
+			}).on('flxMenuRegisterItem', function(evt, domNewItem, unreg){
+				if (unreg)
+					flxUnregisterItem(this, domNewItem);
+				else
+					flxRegisterItem(this, domNewItem);
 			}).on('flxMenuOptions', function(evt, optsIn){
 				this.flxOptions= $.extend({}, this.flxOptions, optsIn);
 				var newOpts= __flxOptions($(this));
@@ -985,6 +1076,11 @@
 			});
 
 			elemToMove.flxOptions= options;
+
+			if (options.puAutoWidth){
+				flxCalcTHW(elemToMove);
+			}
+
 
 			flxMenuCheckPosition($elemToMove, $elemFrame, $destFrame.children(".menuFrame").children(".menuSlider"), $destFrame, true);
 			options.fnInit($elemToMove, $elemFrame, $destFrame);
